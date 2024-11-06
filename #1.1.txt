@@ -1,0 +1,228 @@
+#1.1
+# NON-RECURSIVE Program to display the Fibonacci sequence up to n-th term
+nterms = int(input("How many terms? "))
+n1, n2 = 0, 1
+count = 0
+if nterms <= 0:
+    print("Please enter a positive integer")
+else:
+    print("Fibonacci sequence:")
+    while count < nterms:
+        print(n1)
+        nth = n1 + n2
+        n1 = n2
+        n2 = nth
+        count += 1
+
+
+#1.2
+
+# RECURSIVE program to display the Fibonacci sequence
+def recur_fibo(n):
+    if n <= 1:
+        return n
+    else:
+        return(recur_fibo(n-1) + recur_fibo(n-2))
+nterms = 7
+if nterms <= 0:
+    print("Plese enter a positive integer")
+else:
+    print("Fibonacci sequence:")
+    for i in range(nterms):
+        print(recur_fibo(i))
+
+
+#2
+
+class Node:
+    def __init__(self, prob, symbol, left=None, right=None):
+        self.prob = prob
+
+        self.symbol = symbol
+
+        self.left = left
+
+        self.right = right
+
+        self.code = ''
+
+def Calculate_Probability(data):
+    symbols = dict()
+    for element in data:
+        if symbols.get(element) is None: 
+            symbols[element] = 1
+        else:
+            symbols[element] += 1
+    return symbols
+
+def Calculate_Codes(node, val=''):
+    newVal = val + str(node.code)
+
+    if node.left is None and node.right is None:
+        return {node.symbol: newVal}
+
+    codes = {}
+    if node.left:
+        codes.update(Calculate_Codes(node.left, newVal))
+    if node.right:
+        codes.update(Calculate_Codes(node.right, newVal))
+
+    return codes
+
+def Output_Encoded(data, coding):
+    encoding_output = []
+    for c in data:
+        encoding_output.append(coding[c])
+    string = ''.join([str(item) for item in encoding_output])
+    return string
+
+def Total_Gain(data, coding):
+    before_compression = len(data) * 8  # total bit space to store the data before compression
+    after_compression = 0
+    symbols = coding.keys()
+    for symbol in symbols:
+        count = data.count(symbol)
+        after_compression += count * len(coding[symbol])  # calculate how many bits is required after compression
+    print("Space usage before compression (in bits):", before_compression)
+    print("Space usage after compression (in bits):", after_compression)
+
+def Huffman_Encoding(data):
+    symbol_with_probs = Calculate_Probability(data)
+    symbols = symbol_with_probs.keys() 
+    probabilities = symbol_with_probs.values()
+    print("Symbols:", symbols)
+    print("Probabilities:", probabilities)
+    
+    nodes = []
+    
+    for symbol in symbols:
+        nodes.append(Node(symbol_with_probs.get(symbol), symbol))
+        
+    while len(nodes) > 1:
+        nodes = sorted(nodes, key=lambda x: x.prob)
+
+        left = nodes[0]
+        right = nodes[1]
+
+        left.code = '0'
+        right.code = '1'
+
+        newNode = Node(left.prob + right.prob, left.symbol + right.symbol, left, right)
+    
+        nodes.remove(left)
+        nodes.remove(right)
+        nodes.append(newNode)
+        
+    huffman_encoding = Calculate_Codes(nodes[0])
+    print("Symbols with Codes:", huffman_encoding)
+    Total_Gain(data, huffman_encoding)
+    encoded_output = Output_Encoded(data, huffman_encoding)
+    print("Encoded output:", encoded_output)
+    return encoded_output, nodes[0]
+
+if __name__ == "__main__":
+    data = "AAAAAAABCCCCCCDDEEEEE"
+    encoded_data, tree = Huffman_Encoding(data)
+
+
+
+#3
+
+class Item:
+    def __init__(self, value, weight):  
+        self.value = value
+        self.weight = weight
+
+def fractionalKnapsack(W, arr):  
+    arr.sort(key=lambda x: (x.value/x.weight), reverse=True)
+    
+    finalvalue = .0
+
+    for item in arr:
+        if item.weight <= W:
+            W -= item.weight
+            finalvalue += item.value
+        else:
+            finalvalue += item.value * (W / item.weight)
+            break
+    
+    return finalvalue
+
+if __name__ == "__main__":  
+    W = 50
+    arr = [Item(60, 10), Item(100, 20), Item(120, 30)]
+    
+    max_val = fractionalKnapsack(W, arr)
+    print(max_val)
+
+
+#4
+
+def knapSack(W, wt, val, n):
+    dp = [0 for i in range(W+1)] 
+
+    for i in range(1, n+1): 
+        
+        for w in range(W, 0, -1): 
+            if wt[i-1] <= w:
+                
+                dp[w] = max(dp[w], dp[w-wt[i-1]]+val[i-1])
+                
+    return dp[W] 
+
+val = [60, 100, 120]
+wt = [10, 20, 30]
+W = 50
+n = len(val)
+print(knapSack(W, wt, val, n))
+
+
+#5
+
+global N
+N = 4
+def printSolution(board):
+    for i in range(N):
+        for j in range(N):
+            print(board[i][j], end = " ")
+        print()
+        
+def isSafe(board, row, col):
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+        
+        for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+            if board[i][j] == 1:
+                return False
+            
+    for i, j in zip(range(row, N, 1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+    return True
+
+def solveNQUtil(board, col):
+    if col >= N:
+        return True
+    
+    for i in range(N):
+        if isSafe(board, i, col):
+            board[i][col] = 1
+           
+            if solveNQUtil(board, col + 1) == True:
+                return True
+
+            board[i][col] = 0
+    return False
+
+def solveNQ():
+    board = [ [0, 0, 0, 0],
+             [0, 0, 0, 0], 
+             [0, 0, 0, 0], 
+             [0, 0, 0, 0] ]
+    if solveNQUtil(board, 0) == False:
+        print ("Solution does not exist")
+        return False
+    printSolution(board)
+    return True
+solveNQ()
